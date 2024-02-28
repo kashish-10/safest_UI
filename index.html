@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safest Path Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Safest Path Finder</h1>
+    <form id="pathForm">
+        <label for="startLoc">Start Location:</label>
+        <input type="text" id="startLoc" name="startLoc" required>
+        <label for="endLoc">End Location:</label>
+        <input type="text" id="endLoc" name="endLoc" required>
+        <button type="submit">Find Safest Path</button>
+    </form>
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+    document.getElementById('pathForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const startLoc = document.getElementById('startLoc').value;
+        const endLoc = document.getElementById('endLoc').value;
+        fetch('/safest_path', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                start_loc: startLoc,
+                end_loc: endLoc
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+            if (data.error) {
+                resultDiv.textContent = data.error;
+            } else {
+                const safestRoute = data.safest_route.map(node => `${node.lat}, ${node.lng} (${node.narr})`);
+                const safestRouteHtml = safestRoute.join('<br>');
+                resultDiv.innerHTML = `<strong>Safest Route:</strong><br>${safestRouteHtml}`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = 'An error occurred. Please try again.';
+        });
+    });
+</script>
+
+</body>
+</html>
